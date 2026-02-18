@@ -1,0 +1,400 @@
+:root{
+  --bg:#ffffff;
+  --text:#111;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+  --radius: 18px;
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+
+.topbar-inner{
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.brandName{
+  font-weight: 600;
+  letter-spacing: .02em;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.brandBtn{
+  border:0;
+  background:transparent;
+  padding:0;
+  cursor:pointer;
+  color: var(--text);
+  -webkit-appearance:none;
+  appearance:none;
+}
+.brandBtn:hover{ opacity:.78; }
+
+.rightControls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* Filters */
+.filters{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1;
+  min-width:0;
+  overflow:hidden;
+}
+
+.filterBtn{
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--text);
+  -webkit-appearance:none;
+  appearance:none;
+}
+.filterBtn:hover{ background:#f3f4f6; }
+.filterBtn.active{ background:#111; color:#fff; }
+
+/* Search pill */
+.searchPill{
+  height: 38px;
+  border-radius: 999px;
+  border:1px solid var(--line);
+  background:#f3f4f6;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  width: 240px;          /* desktop */
+  max-width: 240px;
+  flex: 0 0 auto;
+}
+
+.searchIconBtn{
+  width: 38px;
+  height: 38px;
+  border:0;
+  background: transparent;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
+  flex: 0 0 auto;
+}
+
+.searchIcon{
+  display:inline-block;
+  transform: translateX(-1px); /* visually centered (desktop) */
+}
+
+.searchPill input{
+  width:100%;
+  height:100%;
+  border:0;
+  outline:none;
+  background:transparent;
+  font-size:13px;
+  padding: 0 12px 0 6px;
+  min-width: 0;
+}
+
+/* Info */
+.infoBtn{
+  height: 38px;
+  border-radius: 999px;
+  border:1px solid var(--line);
+  background:#fff;
+  padding: 0 14px;
+  font-size: 13px;
+  cursor:pointer;
+  color: var(--text);
+  -webkit-appearance:none;
+  appearance:none;
+  flex: 0 0 auto;
+}
+.infoBtn:hover{ background:#f9fafb; }
+
+.container{
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+/* Wide desktop: let grid + header use full width (Pinterest-style) */
+@media (min-width: 1241px){
+  .container{
+    max-width: none;
+  }
+
+  .topbar-inner{
+    max-width: none;
+    margin: 0; /* keep left-aligned */
+  }
+}
+
+/* Masonry */
+.masonryGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap:14px;
+  grid-auto-rows: 8px;
+  align-items:start;
+}
+
+.card{
+  border-radius: var(--radius);
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.06);
+  background:#fff;
+  cursor:pointer;
+  position: relative;
+}
+
+.card.expanded{
+  grid-column: span 2;
+  box-shadow: var(--shadow);
+}
+
+.mediaWrap{
+  width:100%;
+  background:#f3f4f6;
+  overflow:hidden;
+}
+
+.thumb{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.loopVid{
+  width:100%;
+  height:auto;
+  display:block;
+  background:#000;
+}
+
+.embedCover{
+  width:100%;
+  background:#000;
+  overflow:hidden;
+  height: var(--embedH, 460px);
+}
+.embedCover iframe{
+  width:100%;
+  height:100%;
+  display:block;
+  border:0;
+}
+
+/* Meta */
+.meta{
+  padding: 10px 12px 12px;
+}
+.name{
+  font-size:13px;
+  font-weight: 600;
+  margin-bottom:2px;
+}
+.small{
+  font-size:12px;
+  color: var(--muted);
+}
+
+/* Overlay details */
+.detailsOverlay{
+  display:flex;
+  align-items:flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+}
+.detailsLeft{
+  display:flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width:0;
+}
+.note{
+  font-size:14px;
+  line-height:1.35;
+  color:#111;
+}
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 12px;
+  background: rgba(255,255,255,.85);
+  color: #111;
+}
+
+.closeFab{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.92);
+  color: #111;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex: 0 0 auto;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.closeFab:hover{ background:#fff; }
+
+/* Info drawer */
+.drawerBackdrop{
+  position:fixed;
+  inset:0;
+  background: rgba(0,0,0,.35);
+  z-index:50;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  padding:18px;
+}
+.drawer{
+  width: min(420px, 100%);
+  background:#fff;
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.drawerTop{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap:12px;
+}
+.drawer h2{
+  margin:0;
+  font-size:16px;
+  font-weight: 600;
+}
+
+/* -------------------------
+   Mobile: 2-row header
+   Row 1: Name (left) + Search + Info (right)
+   Row 2: Categories (scroll)
+   + Expanded cards span full width
+   + Prevent iOS zoom on search focus
+-------------------------- */
+@media (max-width: 780px){
+.topbar-inner{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items:center;
+  gap:3px;           /* tighter gap between rows */
+  padding: 0px 14px 4px; /* pulls whole header closer to top */
+}
+
+  .brandBtn{
+    grid-column: 1 / 2;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .rightControls{
+    grid-column: 2 / 3;
+    grid-row: 1;
+    justify-self: end;
+    gap:10px;
+  }
+
+  .filters{
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width:100%;
+    overflow-x:auto;
+    padding-bottom: 1px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+.filterBtn{
+  font-size: 14px;
+  padding: 9px 6px; /* slightly tighter so next pill peeks in */
+}
+
+  .masonryGrid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:12px;
+  }
+
+  /* ✅ Expanded should span both columns */
+  .card.expanded{
+    grid-column: 1 / -1;
+  }
+
+  .embedCover{
+    height: 360px;
+  }
+
+  /* Mobile search: icon-only closed; pill expands left of Info (Info stays put) */
+  .searchPill{
+    width: 38px;
+    max-width: 38px;
+    transition: width .18s ease, max-width .18s ease;
+    background:#fff;
+  }
+
+  /* ✅ reduced so it won’t shove Info */
+  .searchPill.open{
+    width: 150px;
+    max-width: 150px;
+    background:#f3f4f6;
+  }
+
+  .searchPill input{
+    opacity: 0;
+    width: 0;
+    padding: 0;
+    transition: opacity .12s ease;
+    font-size: 16px; /* ✅ stops iOS zoom */
+  }
+
+  .searchPill.open input{
+    opacity: 1;
+    width: 100%;
+    padding: 0 12px 0 6px;
+  }
+
+  .searchIcon{
+    transform: translateX(0);
+  }
+
+}
