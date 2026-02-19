@@ -2013,7 +2013,7 @@ function attachLoadListeners() {
     el.addEventListener("load", layoutMasonry, { once: true });
     el.addEventListener("loadedmetadata", layoutMasonry, { once: true });
     el.addEventListener("error", () => layoutMasonry(), { once: true });
-  }
+  });
 
   function setupLazyLoopVideoThumbs() {
     const vids = Array.from(document.querySelectorAll('video.loopVid[data-src]'));
