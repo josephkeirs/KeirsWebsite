@@ -1552,7 +1552,7 @@ function updateCardDom(p, isExpanded) {
   if (mediaWrap) {
     // Swap ONLY this card's media instead of rerendering the entire grid (prevents black flash + reload)
     mediaWrap.innerHTML = mediaHtmlFor(p, !!isExpanded);
-    setupLazyLoopVideoThumbs(mediaWrap);
+    setupLazyLoopVideoThumbs(mediaWrap, { eager: 2 });
   }
 
   const existingOverlay = card.querySelector(".detailsOverlay");
@@ -1614,8 +1614,8 @@ function toggleExpanded(id) {
   // Re-layout after swapping media, and ensure the expanded card stays in view
   requestAnimationFrame(() => {
     attachLoadListeners();
-    setupLazyLoopVideoThumbs();
     layoutMasonry();
+    requestAnimationFrame(() => requestAnimationFrame(() => setupLazyLoopVideoThumbs(document, { eager: 6 })));
 
     const target = nextId ? document.getElementById(`card-${nextId}`) : null;
     scrollExpandedIntoView(target);
@@ -1639,8 +1639,8 @@ function closeExpanded() {
 
   requestAnimationFrame(() => {
     attachLoadListeners();
-    setupLazyLoopVideoThumbs();
     layoutMasonry();
+    requestAnimationFrame(() => requestAnimationFrame(() => setupLazyLoopVideoThumbs(document, { eager: 6 })));
 
     const target = document.getElementById(`card-${prevId}`);
     // Keep the collapsed tile in view too (feels consistent)
@@ -1872,8 +1872,8 @@ function render(options = {}) {
 
   requestAnimationFrame(() => {
     attachLoadListeners();
-    setupLazyLoopVideoThumbs();
     layoutMasonry();
+    requestAnimationFrame(() => requestAnimationFrame(() => setupLazyLoopVideoThumbs(document, { eager: 6 })));
   });
 }
 
@@ -2006,13 +2006,15 @@ function layoutMasonry() {
 
 
 // Lazy-load looping video thumbnails so we don't download every MP4 on first paint.
-function setupLazyLoopVideoThumbs(root = document) {
-  const vids = Array.from(root.querySelectorAll('video.loopVid[data-src]'));
+function setupLazyLoopVideoThumbs(root = document, { eager = 6 } = {}) {
+  const vids = Array.from(root.querySelectorAll('video.loopVid[data-src]'))
+    .filter(v => v.dataset.loaded !== "1");
+
   if (!vids.length) return;
 
-  // If IntersectionObserver isn't available, just load everything.
+  // No IntersectionObserver? Fall back to loading the first few so the top of the page isn't blank.
   if (typeof IntersectionObserver === "undefined") {
-    vids.forEach(loadLoopVideoThumb);
+    vids.slice(0, Math.max(0, eager)).forEach(loadLoopVideoThumb);
     return;
   }
 
@@ -2026,24 +2028,35 @@ function setupLazyLoopVideoThumbs(root = document) {
       }
     },
     {
-      // Load slightly before the user reaches it.
       root: null,
-      rootMargin: "250px 0px",
+      // Start loading a bit before the user reaches it, but not the whole page.
+      rootMargin: "300px 0px",
       threshold: 0.01,
     }
   );
 
-  // Load anything already on screen immediately (prevents "black boxes" at top).
-  for (const v of vids) {
-    if (v.dataset.loaded === "1") continue;
-    const r = v.getBoundingClientRect();
-    const inView = r.bottom > 0 && r.top < (window.innerHeight || 800);
-    if (inView) {
+  // Observe everything; IntersectionObserver will decide what is "on screen".
+  vids.forEach(v => io.observe(v));
+
+  // After the masonry layout has settled, eagerly load just the currently-visible videos
+  // (sorted top-to-bottom) so the first screen fills in quickly.
+  const eagerLoadVisible = () => {
+    const vh = window.innerHeight || 800;
+    const candidates = vids
+      .filter(v => v.dataset.loaded !== "1")
+      .map(v => ({ v, r: v.getBoundingClientRect() }))
+      .filter(x => x.r.bottom > -100 && x.r.top < vh + 200)
+      .sort((a, b) => (a.r.top - b.r.top) || (a.r.left - b.r.left))
+      .slice(0, Math.max(0, eager));
+
+    for (const { v } of candidates) {
       loadLoopVideoThumb(v);
-    } else {
-      io.observe(v);
+      io.unobserve(v);
     }
-  }
+  };
+
+  // Two RAFs gives the browser a chance to apply layout/paint before we measure.
+  requestAnimationFrame(() => requestAnimationFrame(eagerLoadVisible));
 }
 
 function loadLoopVideoThumb(v) {
