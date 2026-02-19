@@ -33,9 +33,6 @@ const BRAND_MARKS = [
 "/brand/jk-mark-17.png",
 ];
 
-
-// How many looping video thumbs to load immediately (above-the-fold)
-const EAGER_THUMB_COUNT = 8;
 // Pick a mark, optionally avoiding the current one (so clicks feel like they change)
 function pickBrandMark(avoid = null) {
   if (!BRAND_MARKS.length) return null;
@@ -1547,8 +1544,6 @@ function mediaHtmlFor(p, isExpanded) {
 
 function updateCardDom(p, isExpanded) {
   const card = document.getElementById(`card-${p.id}`);
-    const idx = Number(card?.dataset?.idx || 0);
-    p = { ...p, _idx: idx };
   if (!card) return;
 
   card.classList.toggle("expanded", !!isExpanded);
@@ -1557,7 +1552,6 @@ function updateCardDom(p, isExpanded) {
   if (mediaWrap) {
     // Swap ONLY this card's media instead of rerendering the entire grid (prevents black flash + reload)
     mediaWrap.innerHTML = mediaHtmlFor(p, !!isExpanded);
-    setupLazyThumbVideos(card);
   }
 
   const existingOverlay = card.querySelector(".detailsOverlay");
@@ -1619,6 +1613,7 @@ function toggleExpanded(id) {
   // Re-layout after swapping media, and ensure the expanded card stays in view
   requestAnimationFrame(() => {
     attachLoadListeners();
+    setupLazyLoopVideoThumbs();
     layoutMasonry();
 
     const target = nextId ? document.getElementById(`card-${nextId}`) : null;
@@ -1643,6 +1638,7 @@ function closeExpanded() {
 
   requestAnimationFrame(() => {
     attachLoadListeners();
+    setupLazyLoopVideoThumbs();
     layoutMasonry();
 
     const target = document.getElementById(`card-${prevId}`);
@@ -1764,13 +1760,12 @@ function render(options = {}) {
 
     <div class="container">
       <div class="masonryGrid" id="grid">
-        ${filtered.map((p, i) => tileHtml({ ...p, _idx: i })).join("")}
+        ${filtered.map(tileHtml).join("")}
       </div>
     </div>
 
     ${aboutDrawerHtml()}
   `;
-    setupLazyThumbVideos(app);
 
   const brandBtn = document.getElementById("brandBtn");
   if (brandBtn) {
@@ -1876,6 +1871,7 @@ function render(options = {}) {
 
   requestAnimationFrame(() => {
     attachLoadListeners();
+    setupLazyLoopVideoThumbs();
     layoutMasonry();
   });
 }
@@ -1943,7 +1939,7 @@ function tileHtml(p) {
 
 
   return `
-    <div class="card ${isExpanded ? "expanded" : ""}" id="card-${p.id}" data-idx="${p._idx ?? 0}" onclick="toggleExpanded('${p.id}')">
+    <div class="card ${isExpanded ? "expanded" : ""}" id="card-${p.id}" onclick="toggleExpanded('${p.id}')">
       <div class="mediaWrap">${media}</div>
 
       <div class="meta">
@@ -2017,7 +2013,53 @@ function attachLoadListeners() {
     el.addEventListener("load", layoutMasonry, { once: true });
     el.addEventListener("loadedmetadata", layoutMasonry, { once: true });
     el.addEventListener("error", () => layoutMasonry(), { once: true });
-  });
+  }
+
+  function setupLazyLoopVideoThumbs() {
+    const vids = Array.from(document.querySelectorAll('video.loopVid[data-src]'));
+    if (!vids.length || typeof IntersectionObserver === "undefined") {
+      // Fallback: if no IntersectionObserver, just load all thumbs as normal.
+      vids.forEach((v) => {
+        if (!v.src) {
+          v.src = v.dataset.src;
+          v.preload = "metadata";
+          try { v.load(); } catch (e) {}
+        }
+      });
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const v = entry.target;
+          if (entry.isIntersecting) {
+            if (!v.src) {
+              v.src = v.dataset.src;
+              v.preload = "metadata";
+              try { v.load(); } catch (e) {}
+              v.addEventListener(
+                "loadedmetadata",
+                () => {
+                  // Update masonry once the real dimensions are known.
+                  try { layoutMasonry(); } catch (e) {}
+                },
+                { once: true }
+              );
+            }
+            // Try to autoplay (muted + playsInline should allow on most browsers)
+            v.play().catch(() => {});
+          } else {
+            v.pause();
+          }
+        });
+      },
+      { root: null, rootMargin: "600px 0px", threshold: 0.01 }
+    );
+
+    vids.forEach((v) => io.observe(v));
+  }
+);
 
   grid.querySelectorAll("iframe").forEach(el => {
     if (el.dataset.bound) return;
