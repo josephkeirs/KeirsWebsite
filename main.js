@@ -47,6 +47,12 @@ function pickBrandMark(avoid = null) {
 
 // Current mark used by the UI. Starts random on page load.
 let currentBrandMark = pickBrandMark();
+// --- Preload all brand marks to prevent delay on swap ---
+BRAND_MARKS.forEach(src => {
+  const img = new Image();
+  img.src = src;
+});
+
 // -----------------------------------------------
 
 const CATEGORIES = ["All", "Advertising", "Directing", "Music Videos", "Copywriting"];
