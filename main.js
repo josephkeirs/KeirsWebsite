@@ -1524,8 +1524,12 @@ function mediaHtmlFor(p, isExpanded) {
   }
 
   if (p.type === "video") {
-    // Keep your existing behaviour: loop thumb video in the tile
-    return `<video class="thumb" src="${thumbSrc}" autoplay muted loop playsinline></video>`;
+    // Loop thumb video in the tile, but lazy-load the MP4 to avoid downloading every video on first paint.
+    // (If thumbSrc is not an MP4, it will still work as a normal <video src>.)
+    if (thumbIsMp4) {
+      return `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`;
+    }
+    return `<video class="thumb" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`;
   }
 
   if (p.type === "image") {
@@ -1924,7 +1928,10 @@ function tileHtml(p) {
         ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
         : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   } else if (p.type === "video") {
-    media = `<video class="thumb" src="${thumbSrc}" autoplay muted loop playsinline></video>`;
+    // Lazy-load MP4 thumbs just like other tiles
+    media = (thumbIsMp4
+      ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
+      : `<video class="thumb" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`);
 } else if (p.type === "image") {
   // ✅ Collapsed: show thumb (MP4 loop or still)
   // ✅ Expanded: show src (still) if provided, otherwise fall back to thumb
@@ -2005,79 +2012,185 @@ function layoutMasonry() {
 }
 
 
-// Lazy-load looping video thumbnails so we don't download every MP4 on first paint.
-function setupLazyLoopVideoThumbs(root = document, { eager = 6 } = {}) {
-  const vids = Array.from(root.querySelectorAll('video.loopVid[data-src]'))
-    .filter(v => v.dataset.loaded !== "1");
+// Lazy-load looping video thumbnails
+// Why: MP4 thumbs are expensive. Even with IntersectionObserver, if we set `src` up-front the browser will
+// still fetch them. We keep `data-src` until the tile is near the viewport, and we *limit concurrency*
+// so we don’t end up with 50+ pending video requests (which looks like “stuck” thumbs when you scroll back).
+const MAX_CONCURRENT_THUMB_LOADS = 2;
+let activeThumbLoads = 0;
+const thumbLoadQueue = [];
+const queued = new WeakSet();
 
-  if (!vids.length) return;
-
-  // No IntersectionObserver? Fall back to loading the first few so the top of the page isn't blank.
-  if (typeof IntersectionObserver === "undefined") {
-    vids.slice(0, Math.max(0, eager)).forEach(loadLoopVideoThumb);
-    return;
-  }
-
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const v = entry.target;
-        loadLoopVideoThumb(v);
-        io.unobserve(v);
-      }
-    },
-    {
-      root: null,
-      // Start loading a bit before the user reaches it, but not the whole page.
-      rootMargin: "300px 0px",
-      threshold: 0.01,
-    }
-  );
-
-  // Observe everything; IntersectionObserver will decide what is "on screen".
-  vids.forEach(v => io.observe(v));
-
-  // After the masonry layout has settled, eagerly load just the currently-visible videos
-  // (sorted top-to-bottom) so the first screen fills in quickly.
-  const eagerLoadVisible = () => {
-    const vh = window.innerHeight || 800;
-    const candidates = vids
-      .filter(v => v.dataset.loaded !== "1")
-      .map(v => ({ v, r: v.getBoundingClientRect() }))
-      .filter(x => x.r.bottom > -100 && x.r.top < vh + 200)
-      .sort((a, b) => (a.r.top - b.r.top) || (a.r.left - b.r.left))
-      .slice(0, Math.max(0, eager));
-
-    for (const { v } of candidates) {
-      loadLoopVideoThumb(v);
-      io.unobserve(v);
-    }
-  };
-
-  // Two RAFs gives the browser a chance to apply layout/paint before we measure.
-  requestAnimationFrame(() => requestAnimationFrame(eagerLoadVisible));
+function isMp4Url(url) {
+  return typeof url === "string" && /\.mp4(\?.*)?$/i.test(url);
 }
 
-function loadLoopVideoThumb(v) {
-  if (!v || v.dataset.loaded === "1") return;
+function enqueueThumbLoad(videoEl) {
+  if (!videoEl || videoEl.dataset.loaded === "1") return;
+  if (!videoEl.dataset.src || !isMp4Url(videoEl.dataset.src)) return;
+  if (queued.has(videoEl)) return;
 
-  const src = v.dataset.src;
-  if (!src) return;
+  queued.add(videoEl);
+  thumbLoadQueue.push(videoEl);
+  drainThumbQueue();
+}
 
-  v.dataset.loaded = "1";
-  v.src = src;
+function drainThumbQueue() {
+  while (activeThumbLoads < MAX_CONCURRENT_THUMB_LOADS && thumbLoadQueue.length) {
+    const v = thumbLoadQueue.shift();
+    if (!v || v.dataset.loaded === "1") continue;
 
-  // Trigger a layout pass once metadata/first frame arrives so masonry doesn't overlap.
-  const relayout = () => {
-    try { layoutMasonry(); } catch (_) {}
-  };
-  v.addEventListener("loadedmetadata", relayout, { once: true });
-  v.addEventListener("loadeddata", relayout, { once: true });
+    activeThumbLoads++;
+    loadLoopVideoThumb(v)
+      .catch(() => {})
+      .finally(() => {
+        activeThumbLoads = Math.max(0, activeThumbLoads - 1);
+        drainThumbQueue();
+      });
+  }
+}
 
-  // Autoplay can be blocked until user interacts; that's fine.
-  const p = v.play?.();
+function safePlay(videoEl) {
+  if (!videoEl) return;
+  // Ensure autoplay is allowed
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+  videoEl.autoplay = true;
+  const p = videoEl.play();
   if (p && typeof p.catch === "function") p.catch(() => {});
+}
+
+function loadLoopVideoThumb(videoEl) {
+  return new Promise((resolve, reject) => {
+    if (!videoEl || videoEl.dataset.loaded === "1") return resolve();
+
+    const src = videoEl.dataset.src;
+    if (!src) return resolve();
+
+    // If it already has a src, just try to play.
+    if (videoEl.currentSrc || videoEl.src) {
+      videoEl.dataset.loaded = "1";
+      safePlay(videoEl);
+      return resolve();
+    }
+
+    // Keep resource use down until we actually need it
+    videoEl.preload = "metadata";
+
+    const cleanup = () => {
+      videoEl.removeEventListener("loadeddata", onLoaded);
+      videoEl.removeEventListener("canplay", onCanPlay);
+      videoEl.removeEventListener("error", onError);
+      clearTimeout(timer);
+    };
+
+    const onLoaded = () => {
+      videoEl.dataset.loaded = "1";
+      safePlay(videoEl);
+      cleanup();
+      resolve();
+    };
+
+    const onCanPlay = () => {
+      // canplay can happen before loadeddata; treat it as good enough
+      videoEl.dataset.loaded = "1";
+      safePlay(videoEl);
+      cleanup();
+      resolve();
+    };
+
+    const onError = () => {
+      // One retry after a short delay (helps on slow/mobile + connection limits)
+      cleanup();
+      if (videoEl.dataset.retried === "1") return reject(new Error("thumb video failed"));
+      videoEl.dataset.retried = "1";
+      // Reset and retry
+      videoEl.removeAttribute("src");
+      videoEl.load();
+      setTimeout(() => {
+        videoEl.src = src;
+        videoEl.load();
+        safePlay(videoEl);
+        resolve();
+      }, 600);
+    };
+
+    // Timeout safeguard: if it’s taking too long, we still resolve so queue keeps draining
+    const timer = setTimeout(() => {
+      videoEl.dataset.loaded = "1";
+      safePlay(videoEl);
+      cleanup();
+      resolve();
+    }, 8000);
+
+    videoEl.addEventListener("loadeddata", onLoaded, { once: true });
+    videoEl.addEventListener("canplay", onCanPlay, { once: true });
+    videoEl.addEventListener("error", onError, { once: true });
+
+    // Set src only when we actually decide to load it
+    videoEl.src = src;
+    videoEl.load();
+  });
+}
+
+function setupLazyLoopVideoThumbs(root = document, opts = {}) {
+  const videos = Array.from((root || document).querySelectorAll("video.loopVid[data-src]"));
+  if (!videos.length) return;
+
+  // 1) Load videos as they approach the viewport (with a generous rootMargin)
+  if ("IntersectionObserver" in window) {
+    const loadObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) enqueueThumbLoad(entry.target);
+        });
+      },
+      { rootMargin: "800px 0px", threshold: 0.01 }
+    );
+
+    videos.forEach((v) => loadObserver.observe(v));
+
+    // 2) Pause when far off-screen; resume when visible.
+    const playObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const v = entry.target;
+          if (entry.isIntersecting) {
+            // If it’s loaded (or loading), try play
+            if (v.dataset.loaded === "1" || v.currentSrc || v.src) safePlay(v);
+          } else {
+            try {
+              v.pause();
+            } catch {}
+          }
+        });
+      },
+      { rootMargin: "0px", threshold: 0.15 }
+    );
+
+    videos.forEach((v) => playObserver.observe(v));
+  } else {
+    // Old browsers: load a handful in order
+    videos.slice(0, 8).forEach((v) => enqueueThumbLoad(v));
+  }
+
+  // 3) After first paint, gently pre-warm the next few tiles in DOM order (keeps “top of list loads first” vibe)
+  const warm = () => {
+    const ordered = Array.from((root || document).querySelectorAll("video.loopVid[data-src]"));
+    ordered.slice(0, Math.max(0, Number(opts.eager || 10))).forEach((v) => enqueueThumbLoad(v));
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(warm, { timeout: 1500 });
+  else setTimeout(warm, 900);
+
+  // 4) When you return to the tab, resume visible videos
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    document.querySelectorAll("video.loopVid").forEach((v) => {
+      const r = v.getBoundingClientRect();
+      const onScreen = r.bottom > 0 && r.top < window.innerHeight;
+      if (onScreen) safePlay(v);
+    });
+  });
 }
 
 function attachLoadListeners() {
