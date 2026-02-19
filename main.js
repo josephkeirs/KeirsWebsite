@@ -33,6 +33,9 @@ const BRAND_MARKS = [
 "/brand/jk-mark-17.png",
 ];
 
+
+// How many looping video thumbs to load immediately (above-the-fold)
+const EAGER_THUMB_COUNT = 8;
 // Pick a mark, optionally avoiding the current one (so clicks feel like they change)
 function pickBrandMark(avoid = null) {
   if (!BRAND_MARKS.length) return null;
@@ -1542,60 +1545,10 @@ function mediaHtmlFor(p, isExpanded) {
   return "";
 }
 
-// --- Lazy-load looping MP4 thumbs (huge perf win on mobile) ---
-let _loopVidObserver = null;
-
-function initLazyLoopVids(scope = document) {
-  const vids = Array.from(scope.querySelectorAll("video.loopVid[data-src]"));
-  if (!vids.length) return;
-
-  // Fallback: if browser doesn't support IntersectionObserver, just load them.
-  if (!("IntersectionObserver" in window)) {
-    vids.forEach(hydrateLoopVid);
-    return;
-  }
-
-  if (!_loopVidObserver) {
-    _loopVidObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const v = entry.target;
-          if (entry.isIntersecting || entry.intersectionRatio > 0) {
-            hydrateLoopVid(v);
-            // Attempt play (autoplay should work because muted)
-            v.play?.().catch(() => {});
-          } else {
-            // Pause offscreen videos to save CPU/battery
-            v.pause?.();
-          }
-        });
-      },
-      {
-        root: null,
-        // Start loading a bit before it scrolls into view
-        rootMargin: "700px 0px",
-        threshold: 0.01,
-      }
-    );
-  }
-
-  vids.forEach((v) => _loopVidObserver.observe(v));
-}
-
-function hydrateLoopVid(v) {
-  if (!v || v.dataset.hydrated === "1") return;
-  const src = v.dataset.src;
-  if (!src) return;
-
-  v.src = src;
-  v.dataset.hydrated = "1";
-  // Keep preload none until needed; load now.
-  v.load?.();
-}
-// ------------------------------------------------------------
-
 function updateCardDom(p, isExpanded) {
   const card = document.getElementById(`card-${p.id}`);
+    const idx = Number(card?.dataset?.idx || 0);
+    p = { ...p, _idx: idx };
   if (!card) return;
 
   card.classList.toggle("expanded", !!isExpanded);
@@ -1604,7 +1557,7 @@ function updateCardDom(p, isExpanded) {
   if (mediaWrap) {
     // Swap ONLY this card's media instead of rerendering the entire grid (prevents black flash + reload)
     mediaWrap.innerHTML = mediaHtmlFor(p, !!isExpanded);
-    initLazyLoopVids(mediaWrap);
+    setupLazyThumbVideos(card);
   }
 
   const existingOverlay = card.querySelector(".detailsOverlay");
@@ -1665,8 +1618,7 @@ function toggleExpanded(id) {
 
   // Re-layout after swapping media, and ensure the expanded card stays in view
   requestAnimationFrame(() => {
-    initLazyLoopVids(app);
-  attachLoadListeners();
+    attachLoadListeners();
     layoutMasonry();
 
     const target = nextId ? document.getElementById(`card-${nextId}`) : null;
@@ -1812,12 +1764,13 @@ function render(options = {}) {
 
     <div class="container">
       <div class="masonryGrid" id="grid">
-        ${filtered.map(tileHtml).join("")}
+        ${filtered.map((p, i) => tileHtml({ ...p, _idx: i })).join("")}
       </div>
     </div>
 
     ${aboutDrawerHtml()}
   `;
+    setupLazyThumbVideos(app);
 
   const brandBtn = document.getElementById("brandBtn");
   if (brandBtn) {
@@ -1990,7 +1943,7 @@ function tileHtml(p) {
 
 
   return `
-    <div class="card ${isExpanded ? "expanded" : ""}" id="card-${p.id}" onclick="toggleExpanded('${p.id}')">
+    <div class="card ${isExpanded ? "expanded" : ""}" id="card-${p.id}" data-idx="${p._idx ?? 0}" onclick="toggleExpanded('${p.id}')">
       <div class="mediaWrap">${media}</div>
 
       <div class="meta">
