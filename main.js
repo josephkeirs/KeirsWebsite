@@ -1502,7 +1502,7 @@ function mediaHtmlFor(p, isExpanded) {
         </div>
       `
       : (thumbIsMp4
-          ? `<video class="thumb loopVid" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+          ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
           : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   }
 
@@ -1519,7 +1519,7 @@ function mediaHtmlFor(p, isExpanded) {
         </div>
       `
       : (thumbIsMp4
-        ? `<video class="thumb loopVid" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+        ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
         : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   }
 
@@ -1535,7 +1535,7 @@ function mediaHtmlFor(p, isExpanded) {
       return `<img class="thumb" src="${p.src}" alt="${escapeHtml(p.title)}" loading="lazy" />`;
     }
     return (thumbIsMp4
-      ? `<video class="thumb loopVid" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+      ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
       : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   }
 
@@ -1552,6 +1552,7 @@ function updateCardDom(p, isExpanded) {
   if (mediaWrap) {
     // Swap ONLY this card's media instead of rerendering the entire grid (prevents black flash + reload)
     mediaWrap.innerHTML = mediaHtmlFor(p, !!isExpanded);
+    setupLazyLoopVideoThumbs(mediaWrap);
   }
 
   const existingOverlay = card.querySelector(".detailsOverlay");
@@ -1905,7 +1906,7 @@ function tileHtml(p) {
         </div>
       `
       : (thumbIsMp4
-          ? `<video class="thumb loopVid" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+          ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
           : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   } else if (p.type === "youtube") {
     media = isExpanded
@@ -1920,7 +1921,7 @@ function tileHtml(p) {
         </div>
       `
       : (thumbIsMp4
-        ? `<video class="thumb loopVid" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+        ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
         : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   } else if (p.type === "video") {
     media = `<video class="thumb" src="${thumbSrc}" autoplay muted loop playsinline></video>`;
@@ -1931,7 +1932,7 @@ function tileHtml(p) {
     media = `<img class="thumb" src="${p.src}" alt="${escapeHtml(p.title)}" loading="lazy" />`;
   } else {
     media = (thumbIsMp4
-      ? `<video class="thumb loopVid" src="${thumbSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+      ? `<video class="thumb loopVid" data-src="${thumbSrc}" autoplay muted loop playsinline preload="none"></video>`
       : `<img class="thumb" src="${thumbSrc}" alt="${escapeHtml(p.title)}" loading="lazy" />`);
   }
 }
@@ -2003,72 +2004,95 @@ function layoutMasonry() {
   });
 }
 
+
+// Lazy-load looping video thumbnails so we don't download every MP4 on first paint.
+function setupLazyLoopVideoThumbs(root = document) {
+  const vids = Array.from(root.querySelectorAll('video.loopVid[data-src]'));
+  if (!vids.length) return;
+
+  // If IntersectionObserver isn't available, just load everything.
+  if (typeof IntersectionObserver === "undefined") {
+    vids.forEach(loadLoopVideoThumb);
+    return;
+  }
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const v = entry.target;
+        loadLoopVideoThumb(v);
+        io.unobserve(v);
+      }
+    },
+    {
+      // Load slightly before the user reaches it.
+      root: null,
+      rootMargin: "250px 0px",
+      threshold: 0.01,
+    }
+  );
+
+  // Load anything already on screen immediately (prevents "black boxes" at top).
+  for (const v of vids) {
+    if (v.dataset.loaded === "1") continue;
+    const r = v.getBoundingClientRect();
+    const inView = r.bottom > 0 && r.top < (window.innerHeight || 800);
+    if (inView) {
+      loadLoopVideoThumb(v);
+    } else {
+      io.observe(v);
+    }
+  }
+}
+
+function loadLoopVideoThumb(v) {
+  if (!v || v.dataset.loaded === "1") return;
+
+  const src = v.dataset.src;
+  if (!src) return;
+
+  v.dataset.loaded = "1";
+  v.src = src;
+
+  // Trigger a layout pass once metadata/first frame arrives so masonry doesn't overlap.
+  const relayout = () => {
+    try { layoutMasonry(); } catch (_) {}
+  };
+  v.addEventListener("loadedmetadata", relayout, { once: true });
+  v.addEventListener("loadeddata", relayout, { once: true });
+
+  // Autoplay can be blocked until user interacts; that's fine.
+  const p = v.play?.();
+  if (p && typeof p.catch === "function") p.catch(() => {});
+}
+
 function attachLoadListeners() {
   const grid = document.getElementById("grid");
   if (!grid) return;
 
-  function setupLazyLoopVideoThumbs() {
-    const vids = Array.from(document.querySelectorAll("video.loopVid[data-src]"));
-    if (!vids.length) return;
-
-    // If IntersectionObserver isn't available, just load all.
-    if (typeof IntersectionObserver === "undefined") {
-      vids.forEach(v => {
-        const src = v.getAttribute("data-src");
-        if (src) {
-          v.src = src;
-          v.removeAttribute("data-src");
-        }
-      });
-      return;
-    }
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const v = entry.target;
-          const src = v.getAttribute("data-src");
-          if (src) {
-            v.src = src;
-            v.removeAttribute("data-src");
-          }
-          io.unobserve(v);
-        });
-      },
-      { rootMargin: "600px 0px" }
-    );
-
-    vids.forEach((v) => io.observe(v));
-  }
-
-  grid.querySelectorAll("img,video").forEach((el) => {
-    // Bind once per element to avoid accumulating listeners after re-renders
-    if (el.dataset.bound) return;
-    el.dataset.bound = "1";
-
-    const tag = el.tagName.toLowerCase();
-    if (tag === "img") {
-      el.addEventListener("load", layoutMasonry, { once: true });
-    } else if (tag === "video") {
-      // metadata is enough for sizing + masonry; don't wait for full download
-      el.addEventListener("loadedmetadata", layoutMasonry, { once: true });
-    }
-    el.addEventListener("error", () => layoutMasonry(), { once: true });
-  });
-
-  // Only load looping MP4 thumbs when they approach the viewport
-  setupLazyLoopVideoThumbs();
-
-  // If you ever embed iframes in the grid, relayout after they load
-  grid.querySelectorAll("iframe").forEach((el) => {
+  grid.querySelectorAll("img,video").forEach(el => {
     if (el.dataset.bound) return;
     el.dataset.bound = "1";
     el.addEventListener("load", layoutMasonry, { once: true });
+    el.addEventListener("loadedmetadata", layoutMasonry, { once: true });
     el.addEventListener("error", () => layoutMasonry(), { once: true });
   });
-}
 
+  grid.querySelectorAll("iframe").forEach(el => {
+    if (el.dataset.bound) return;
+    el.dataset.bound = "1";
+    el.addEventListener("load", () => {
+      requestAnimationFrame(layoutMasonry);
+      setTimeout(layoutMasonry, 180);
+      setTimeout(layoutMasonry, 420);
+    }, { once: true });
+  });
+
+  setTimeout(layoutMasonry, 120);
+  setTimeout(layoutMasonry, 300);
+  setTimeout(layoutMasonry, 700);
+}
 
 let resizeTimer = null;
 window.addEventListener("resize", () => {
