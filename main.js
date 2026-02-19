@@ -2007,23 +2007,17 @@ function attachLoadListeners() {
   const grid = document.getElementById("grid");
   if (!grid) return;
 
-  grid.querySelectorAll("img,video").forEach(el => {
-    if (el.dataset.bound) return;
-    el.dataset.bound = "1";
-    el.addEventListener("load", layoutMasonry, { once: true });
-    el.addEventListener("loadedmetadata", layoutMasonry, { once: true });
-    el.addEventListener("error", () => layoutMasonry(), { once: true });
-  });
-
   function setupLazyLoopVideoThumbs() {
-    const vids = Array.from(document.querySelectorAll('video.loopVid[data-src]'));
-    if (!vids.length || typeof IntersectionObserver === "undefined") {
-      // Fallback: if no IntersectionObserver, just load all thumbs as normal.
-      vids.forEach((v) => {
-        if (!v.src) {
-          v.src = v.dataset.src;
-          v.preload = "metadata";
-          try { v.load(); } catch (e) {}
+    const vids = Array.from(document.querySelectorAll("video.loopVid[data-src]"));
+    if (!vids.length) return;
+
+    // If IntersectionObserver isn't available, just load all.
+    if (typeof IntersectionObserver === "undefined") {
+      vids.forEach(v => {
+        const src = v.getAttribute("data-src");
+        if (src) {
+          v.src = src;
+          v.removeAttribute("data-src");
         }
       });
       return;
@@ -2032,49 +2026,49 @@ function attachLoadListeners() {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
           const v = entry.target;
-          if (entry.isIntersecting) {
-            if (!v.src) {
-              v.src = v.dataset.src;
-              v.preload = "metadata";
-              try { v.load(); } catch (e) {}
-              v.addEventListener(
-                "loadedmetadata",
-                () => {
-                  // Update masonry once the real dimensions are known.
-                  try { layoutMasonry(); } catch (e) {}
-                },
-                { once: true }
-              );
-            }
-            // Try to autoplay (muted + playsInline should allow on most browsers)
-            v.play().catch(() => {});
-          } else {
-            v.pause();
+          const src = v.getAttribute("data-src");
+          if (src) {
+            v.src = src;
+            v.removeAttribute("data-src");
           }
+          io.unobserve(v);
         });
       },
-      { root: null, rootMargin: "600px 0px", threshold: 0.01 }
+      { rootMargin: "600px 0px" }
     );
 
     vids.forEach((v) => io.observe(v));
   }
-);
 
-  grid.querySelectorAll("iframe").forEach(el => {
+  grid.querySelectorAll("img,video").forEach((el) => {
+    // Bind once per element to avoid accumulating listeners after re-renders
     if (el.dataset.bound) return;
     el.dataset.bound = "1";
-    el.addEventListener("load", () => {
-      requestAnimationFrame(layoutMasonry);
-      setTimeout(layoutMasonry, 180);
-      setTimeout(layoutMasonry, 420);
-    }, { once: true });
+
+    const tag = el.tagName.toLowerCase();
+    if (tag === "img") {
+      el.addEventListener("load", layoutMasonry, { once: true });
+    } else if (tag === "video") {
+      // metadata is enough for sizing + masonry; don't wait for full download
+      el.addEventListener("loadedmetadata", layoutMasonry, { once: true });
+    }
+    el.addEventListener("error", () => layoutMasonry(), { once: true });
   });
 
-  setTimeout(layoutMasonry, 120);
-  setTimeout(layoutMasonry, 300);
-  setTimeout(layoutMasonry, 700);
+  // Only load looping MP4 thumbs when they approach the viewport
+  setupLazyLoopVideoThumbs();
+
+  // If you ever embed iframes in the grid, relayout after they load
+  grid.querySelectorAll("iframe").forEach((el) => {
+    if (el.dataset.bound) return;
+    el.dataset.bound = "1";
+    el.addEventListener("load", layoutMasonry, { once: true });
+    el.addEventListener("error", () => layoutMasonry(), { once: true });
+  });
 }
+
 
 let resizeTimer = null;
 window.addEventListener("resize", () => {
