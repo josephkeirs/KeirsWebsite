@@ -241,7 +241,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "tech", "c
     type: "vimeo",
     thumb: "/projects/samsung-ssd-heroes/thumb.mp4", // ✅ your loop file (now supported)
     vimeoId: "1157607469",
-    note: "Ginormous performance from our (7' 3") actor here.",
+    note: "Ginormous performance from our (7' 3\") actor here.",
   },
 
 {
