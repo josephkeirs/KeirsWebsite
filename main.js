@@ -315,6 +315,7 @@ const PROJECTS = [
   title: "The soft drink disguised as a beer",
   client: "ZAG",
   cats: ["Copywriting", "Advertising"],
+tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"]
   type: "image",
   thumb: "/projects/zag-beer-eyeballs/still.jpeg",
   src: "/projects/zag-beer-eyeballs/still.jpeg",
@@ -571,6 +572,7 @@ vimeoHash: "230188d62a",
   title: "The soft drink disguised as a beer",
   client: "ZAG",
   cats: ["Copywriting", "Advertising"],
+tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"]
   type: "image",
   thumb: "/projects/zag-beer/thumb.mp4",
   src: "/projects/zag-beer/still2.jpeg",
@@ -593,6 +595,7 @@ vimeoHash: "230188d62a",
   title: "The soft drink disguised as a beer",
   client: "ZAG",
   cats: ["Copywriting", "Advertising"],
+tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"]
   type: "image",
   thumb: "/projects/zag-beer-stealth/thumb.mp4",
   src: "/projects/zag-beer-stealth/still.jpeg",
@@ -739,7 +742,7 @@ vimeoHash: "230188d62a",
   type: "image",
   thumb: "/projects/barclays-football-opens-doors-confidence/still.jpg",
   src: "/projects/barclays-football-opens-doors-confidence/still.jpg",
-  note: "Scrimpers campaign asset launching a new price-saving positioning.",
+  note: "Launching the Barclays Community Football Fund.",
 },
 
   {
@@ -993,7 +996,7 @@ vimeoHash: "230188d62a",
   type: "image",
   thumb: "/projects/hellmanns-ketchup-tomatoes/still.png",
   src: "/projects/hellmanns-ketchup-tomatoes/still.png",
-  note: "",
+  note: "A subtle shift in language that made Hellmann’s new ketchup more ketchuppy.",
 },
 
   {
@@ -1475,7 +1478,7 @@ function matchesFilters(p) {
   if (!catOk) return false;
   if (!q) return true;
 
-  const hay = `${p.title} ${p.client} ${(p.cats || []).join(" ")}`.toLowerCase();
+  const hay = `${p.title} ${p.client} ${(p.cats || []).join(" ")} ${(p.tags || []).join(" ")}`.toLowerCase();
   return hay.includes(q);
 }
 
