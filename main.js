@@ -2098,6 +2098,11 @@ function overlayDetailsHtml(p) {
 
 function aboutDrawerHtml() {
   if (!state.infoOpen) return "";
+
+  const user = "joseph";
+  const domain = "josephkeirs.com";
+  const email = user + "@" + domain;
+
   return `
     <div class="drawerBackdrop" onclick="closeInfo()">
       <div class="drawer" onclick="event.stopPropagation()">
@@ -2107,8 +2112,8 @@ function aboutDrawerHtml() {
         </div>
         <p>Senior Creative. London.</p>
         <p>
-          <a href="mailto:jkeirs@gmail.com">Email</a><br/>
-          <a href="https://www.linkedin.com/in/keirs" target="_blank" rel="noreferrer">LinkedIn</a><br/>
+          <a href="mailto:${email}">${email}</a><br/>
+          <a href="https://www.linkedin.com/in/keirs" target="_blank" rel="noreferrer">LinkedIn</a>
         </p>
       </div>
     </div>
