@@ -2107,7 +2107,7 @@ function aboutDrawerHtml() {
     <div class="drawerBackdrop" onclick="closeInfo()">
       <div class="drawer" onclick="event.stopPropagation()">
         <div class="drawerTop">
-          <h2>Info</h2>
+          <img src="/brand/jk-mark-3.png" alt="Joseph Keirs" style="height:28px;" />
           <button class="closeFab" onclick="closeInfo()" aria-label="Close" type="button">✕</button>
         </div>
         <p>Senior Creative. London.</p>
