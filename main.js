@@ -315,7 +315,7 @@ const PROJECTS = [
   title: "The soft drink disguised as a beer",
   client: "ZAG",
   cats: ["Copywriting", "Advertising"],
-tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"]
+tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"],
   type: "image",
   thumb: "/projects/zag-beer-eyeballs/still.jpeg",
   src: "/projects/zag-beer-eyeballs/still.jpeg",
@@ -572,7 +572,7 @@ vimeoHash: "230188d62a",
   title: "The soft drink disguised as a beer",
   client: "ZAG",
   cats: ["Copywriting", "Advertising"],
-tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"]
+tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"],
   type: "image",
   thumb: "/projects/zag-beer/thumb.mp4",
   src: "/projects/zag-beer/still2.jpeg",
@@ -595,7 +595,7 @@ tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typograph
   title: "The soft drink disguised as a beer",
   client: "ZAG",
   cats: ["Copywriting", "Advertising"],
-tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"]
+tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typography"],
   type: "image",
   thumb: "/projects/zag-beer-stealth/thumb.mp4",
   src: "/projects/zag-beer-stealth/still.jpeg",
