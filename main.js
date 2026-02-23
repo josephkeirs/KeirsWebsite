@@ -89,14 +89,14 @@ function mkVid(id, title, client, cats, mp4Url) {
 const PROJECTS = [
   {
     id: "barclays-land-of-football",
-    title: "The Land of Football",
+    title: "Here for The Land of Football",
     client: "Barclays",
     cats: ["Advertising"],
 tags: ["tvc", "atl", "surreal", "campaign", "football", "cinematic", "Ian Wright", "sport", "finance", "bank", "integrated", "sponsorship"],
     type: "vimeo",
     thumb: "/projects/barclays-land-of-football/thumb.mp4",
     vimeoId: "1157427053",
-    note: "Hero campaign celebrating Barclays' widespread role in UK football.",
+    note: "Campaign positioning Barclays as the invisible engine behind English football, connecting grassroots to grandstands.",
   },
 
   {
@@ -108,19 +108,7 @@ tags: ["funny", "gen z", "film", "TV", "surreal", "absurd", "animation", "sport"
     type: "youtube",
     thumb: "/projects/adidas-run-free/thumb.mp4", // ✅ your loop file
     youtubeId: "MYxSCzHKKgs",
-    note: "Film. YouTube embed on expand.",
-  },
-
-  {
-    id: "adidas-run-free-social",
-    title: "Run free from social media",
-    client: "Adidas",
-    cats: ["Advertising"],
-tags: ["funny", "gen z", "surreal", "absurd", "animation", "sport", "running", "social media", "youth", "George Gilbert", "running"],
-    type: "video",
-    thumb: "/projects/adidas-run-free-social/thumb.mp4",
-    src: "/projects/adidas-run-free-social/full.mp4",
-    note: "George Gilbert runs free from social media.",
+    note: "Reframing the Adidas UltraBoost as an antidote to digital inertia, this campaign challenged a generation to run free from their feeds.",
   },
 
   {
@@ -138,7 +126,7 @@ tags: ["comedy", "funny", "tv", "tvc", "song", "adam buxton", "campaign", "launc
 "/projects/carphone-warehouse-scrimpers/thumb7.mp4",
 ],
     vimeoId: "1158109398",
-    note: "Launching a live tariff checker by celebrating cheapskates. With vocals from the one and only Adam Buxton.",
+    note: "Reclaiming “cheap” as a badge of honour, this value-led platform put Britain’s savviest spenders front and centre. With vocals from the one and only Adam Buxton.",
   },
 
   {
@@ -166,19 +154,7 @@ tags: ["tv", "tvc", "russian", "drinks", "beverage", "beer", "fmcg", "atl", "fre
     type: "vimeo",
     thumb: "/projects/stella-journey/thumb.mp4",
     vimeoId: "1158109372",
-    note: "Filming The Boulevard de la Croisette (... on Santa Monica Boulevard).",
-  },
-
-  {
-    id: "nike-never-stop",
-    title: "Never Stop",
-    client: "Nike",
-    cats: ["Advertising", "Directing"],
-tags: ["campaign", "running", "sport", "energy", "visceral", "advertising", "tv", "atl"],
-    type: "vimeo",
-    thumb: "/projects/nike-never-stop/thumb1.mp4", // ✅ your loop file (now supported)
-    vimeoId: "1157401320",
-    note: "Filming overnight with the second largest man I've ever stood next to (See Samsung ad for tallest).",
+    note: "Elevating a sales promotion into a cinematic experience. This playful pastiche of French New Wave cinema reframed a competition mechanic as pure film fantasy.",
   },
 
  {
@@ -217,7 +193,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "banking",
     type: "youtube",
     thumb: "/projects/barclays-football-opens-doors/thumb.mp4",
     youtubeId: "4OfK2_9cxLQ",
-    note: "Launching the Barclays Community Football Fund.",
+    note: "Campaign positioning grassroots football as a gateway to confidence, opportunity and life beyond the pitch.",
   },
 
 {
@@ -256,6 +232,41 @@ tags: ["campaign", "advertising", "atl", "integrated", "sponsorship", "banking",
   note: "The LTA.",
 },
 
+  {
+    id: "samsung-retro",
+    title: "Retro isn't always cool",
+    client: "Samsung",
+    cats: ["Advertising"],
+tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "tech", "consumer electronics", "samsung", "funny", "comedy", "nostalgia", "80s", "silly", "surreal"],
+    type: "vimeo",
+    thumb: "/projects/samsung-retro/thumb.mp4", // ✅ your loop file (now supported)
+    vimeoId: "1157607529",
+    note: "Challenging the culture’s obsession with nostalgia by reminding audiences that some things belong in the past. Our campaign reframed speed as progress, in a world romanticising outdated tech.",
+  },
+
+  {
+    id: "odeon-limitless-sexy-pete",
+    title: "Life is limited. Cinema isn't • Sexy Pete",
+    client: "ODEON",
+    cats: ["Advertising", "Directing"],
+tags: ["advertising", "directing", "film", "tvc", "atl", "integrated", "entertainment", "cinema", "odeon", "cinematic", "action", "violence", "violent", "guns", "comedy", "dark", "funny"],
+    type: "vimeo",
+    thumb: "/projects/odeon-limitless-sexy-pete/thumb.mp4", // ✅ your loop file (now supported)
+    vimeoId: "1157401351",
+    note: "Launching ODEON Limitless with a darkly comic platform built on a simple tension: life is limited, cinema isn't.",
+  },
+
+  {
+    id: "nike-never-stop",
+    title: "Never Stop",
+    client: "Nike",
+    cats: ["Advertising", "Directing"],
+tags: ["campaign", "running", "sport", "energy", "visceral", "advertising", "tv", "atl"],
+    type: "vimeo",
+    thumb: "/projects/nike-never-stop/thumb1.mp4", // ✅ your loop file (now supported)
+    vimeoId: "1157401320",
+    note: "What if age is just endurance in disguise? ‘Never Stop’ repositioned 50+ athletes as proof that peak performance has no deadline.",
+  },
 
   {
     id: "blaenavon-prague-99",
@@ -295,14 +306,14 @@ tags: ["advertising", "campaign", "copywriting", "home", "interiors", "paint", "
 
   {
     id: "odeon-limitless-lady-victoria",
-    title: "Lady Victoria",
+    title: "Life is limited. Cinema isn't • Lady Victoria",
     client: "ODEON",
     cats: ["Advertising", "Directing"],
 tags: ["advertising", "directing", "film", "tvc", "atl", "integrated", "entertainment", "cinema", "odeon", "cinematic", "action", "violence", "violent", "comedy", "dark", "funny", "retail"],
     type: "vimeo",
     thumb: "/projects/odeon-limitless-lady-victoria/thumb.mp4", // ✅ your loop file (now supported)
     vimeoId: "1157408058",
-    note: "Launching ODEON limitless.",
+    note: "Launching ODEON Limitless with a darkly comic platform built on a simple tension: life is limited, cinema isn't.",
   },
 
   {
@@ -342,27 +353,15 @@ tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typograph
 },
 
   {
-    id: "odeon-limitless-sexy-pete",
-    title: "Sexy Pete",
-    client: "ODEON",
-    cats: ["Advertising", "Directing"],
-tags: ["advertising", "directing", "film", "tvc", "atl", "integrated", "entertainment", "cinema", "odeon", "cinematic", "action", "violence", "violent", "guns", "comedy", "dark", "funny"],
-    type: "vimeo",
-    thumb: "/projects/odeon-limitless-sexy-pete/thumb.mp4", // ✅ your loop file (now supported)
-    vimeoId: "1157401351",
-    note: "Launching ODEON limitless.",
-  },
-
-  {
-    id: "samsung-retro",
-    title: "Retro isn't always cool",
-    client: "Samsung",
+    id: "adidas-run-free-social",
+    title: "Run free from social media",
+    client: "Adidas",
     cats: ["Advertising"],
-tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "tech", "consumer electronics", "samsung", "funny", "comedy", "nostalgia", "80s", "silly", "surreal"],
-    type: "vimeo",
-    thumb: "/projects/samsung-retro/thumb.mp4", // ✅ your loop file (now supported)
-    vimeoId: "1157607529",
-    note: "Nostalgia this, nostalgia that but some things belong in the past.",
+tags: ["funny", "gen z", "surreal", "absurd", "animation", "sport", "running", "social media", "youth", "George Gilbert", "running"],
+    type: "video",
+    thumb: "/projects/adidas-run-free-social/thumb.mp4",
+    src: "/projects/adidas-run-free-social/full.mp4",
+    note: "Reframing the Adidas UltraBoost as an antidote to digital inertia, this campaign challenged a generation to run free from their feeds.",
   },
 
  {
@@ -413,7 +412,7 @@ tags: ["campaign", "advertising", "atl", "integrated", "travel", "tourism", "slo
     type: "video",
     thumb: "/projects/slovenia-actually-print/thumb.mp4",
     src: "/projects/slovenia-actually-print/thumb.mp4",
-    note: "In an era where we travel for the photo, not the place, we hijacked the world’s most Instagrammed destinations, and revealed they were Slovenia all along.",
+    note: "In an era where we travel for the photo, not the place, we hijacked the world’s most Instagrammed destinations, and revealed they were in fact all shot in Slovenia.",
   },
 
   {
