@@ -217,7 +217,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "tech", "c
     type: "vimeo",
     thumb: "/projects/samsung-ssd-heroes/thumb.mp4", // ✅ your loop file (now supported)
     vimeoId: "1157607469",
-    note: "Ginormous performance from our (7' 3\") actor here.",
+    note: "For a generation raised on real-time everything, waiting feels like weakness. The \“Heroes Don’t Wait\” campaign reframed storage speed as competitive mindset - aligning Samsung with players who refuse to pause.",
   },
 
 {
