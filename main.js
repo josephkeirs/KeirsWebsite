@@ -669,7 +669,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "linkedin"
       "/projects/linkedin-do-you-follow/thumb1.mp4",
     ],
     vimeoId: "1158430521",
-    note: ".",
+    note: "",
   },
 
   {
@@ -1265,7 +1265,7 @@ tags: ["integrated", "fmcg", "confectionery", "chocolate", "cadbury", "digital",
 "/projects/cadbury-joyville-made/thumb2.mp4",
     ],
     vimeoId: "1158430570",
-    note: ".",
+    note: "",
   },
 
   {
@@ -1334,7 +1334,7 @@ tags: ["copywriting", "civic", "democracy","public sector", "writing", "funny", 
 "/projects/what-election-short/thumb3.mp4",
     ],
     vimeoId: "1157935861",
-    note: ".",
+    note: "",
   },
 
  {
