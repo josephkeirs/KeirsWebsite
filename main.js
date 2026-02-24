@@ -147,7 +147,7 @@ tags: ["campaign", "digital", "charity", "fundraising", "polio", "Bill Gates", "
 
   {
     id: "stella-journey",
-    title: "Le Voyage",
+    title: "The Art of Getting There",
     client: "Stella Artois",
     cats: ["Advertising"],
 tags: ["tv", "tvc", "russian", "drinks", "beverage", "beer", "fmcg", "atl", "french", "france", "one shot", "continuous shot"],
@@ -1136,8 +1136,8 @@ tags: ["comedy", "funny", "humour", "surreal", "absurd", "animation", "typograph
 
   {
     id: "cadburys-danger-zone",
-    title: "Danger Zone • Team GB sponsorship",
-    client: "Cadbury",
+    title: "Keep Singing, Keep Team GB Pumped • Danger Zone",
+    client: "Cadbury • Team GB sponsorship",
     cats: ["Music Videos", "Advertising"],
 tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "food", "cadbury", "chocolate", "prank", "hidden camera", "shock", "surprise", "hoax", "olympics"],
     type: "vimeo",
@@ -1146,7 +1146,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "f
 "/projects/cadburys-danger-zone/thumb2.mp4",
     ],
     vimeoId: "1157933833",
-    note: ".",
+    note: "Turning the nation into Team GB’s unofficial choir, the campaign re-recorded iconic power ballads using the voices of the British public - transforming support into something athletes could literally train to. For this film we did an ambush performance of “Danger Zone” that surprised Team GB mid-training, turning public support into a live, disruptive soundtrack.",
   },
 
 {
@@ -1189,8 +1189,8 @@ tags: ["digital", "social-first", "gif", "animation", "directing", "telecom", "m
 
   {
     id: "cadbury-simply-the-best",
-    title: "Simply The Best • Team GB sponsorship",
-    client: "Cadbury",
+    title: "Keep Singing, Keep Team GB Pumped • Simply The Best",
+    client: "Cadbury • Team GB sponsorship",
     cats: ["Music Videos", "Advertising"],
 tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "food", "cadbury", "underwater", "Rebecca Adlington", "Taika Waititi", "promo"],
     type: "vimeo",
@@ -1200,7 +1200,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "f
 "/projects/cadbury-simply-the-best/thumb2.mp4",
     ],
     vimeoId: "1158109507",
-    note: ".",
+    note: "A nationwide platform that re-recorded iconic power ballads using the voices of the British public - giving Team GB a soundtrack powered by the people. Directed by Taika Waititi, “Simply The Best” transformed everyday Britons into an underwater choir - surrounding Rebecca Adlington with a surreal, people-powered anthem.",
   },
 
   {
@@ -1241,8 +1241,8 @@ tags: ["digital", "social-first", "gif", "animation", "directing", "telecom", "m
 
   {
     id: "cadbury-keep-singing-campaign",
-    title: "Campaign summary • Team GB sponsorship",
-    client: "Cadbury",
+    title: "Keep Singing, Keep Team GB Pumped • Campaign summary",
+    client: "Cadbury • Team GB sponsorship",
     cats: ["Music Videos", "Advertising"],
 tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "confectionery", "chocolate", "cadbury", "sponsorship", "sport", "olympics", "team gb", "music video", "promo", "music", "results"],
     type: "vimeo",
@@ -1250,7 +1250,7 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "c
 "/projects/cadbury-keep-singing-campaign/thumb.mp4",
     ],
     vimeoId: "1157935064",
-    note: ".",
+    note: "Reimagining spectators as contributors, the campaign gave the nation a tangible role in Team GB’s Olympic journey. The resulting movement placed the brand at the centre of the Games, driving sponsorship recognition beyond Tier One partners and demonstrating the scale of people-powered performance.",
   },
 
   {
@@ -1429,8 +1429,8 @@ tags: ["advertising", "film", "integrated", "retail", "telecom", "mobile", "cons
 
   {
     id: "cadbury-bts",
-    title: "Olympic Sponsors • BTS content",
-    client: "Cadbury",
+    title: "Keep Singing, Keep Team GB Pumped • BTS content",
+    client: "Cadbury • Team GB sponsorship",
     cats: ["Music Videos", "Advertising"],
 tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "confectionery", "chocolate", "cadbury", "sponsorship", "sport", "olympics", "team gb", "behind the scenes", "bts", "music video", "promo", "music", "taika waititi", "underwater", "behind the scenes"],
     type: "vimeo",
@@ -1438,13 +1438,13 @@ tags: ["campaign", "advertising", "film", "tvc", "atl", "integrated", "fmcg", "c
 "/projects/cadbury-bts/thumb.mp4",
     ],
     vimeoId: "1158430697",
-    note: "Great working with a young Taika Waititi.",
+    note: "As part of our nationwide platform that rebuilt motivational power ballads from the voices of the British public, an ongoing stream of behind-the-scenes content extended the campaign throughout the Olympics. Styled as a retro sports broadcast, the content turned production into performance - documenting rehearsals, recording booths and on-set moments while sustaining momentum across social in real time.",
   },
 
   {
     id: "cadbury-wispa-gold",
-    title: "Wispa Gold • Team GB sponsorship",
-    client: "Cadbury",
+    title: "Keep Singing, Keep Team GB Pumped • Wispa Gold",
+    client: "Cadbury • Team GB sponsorship",
     cats: ["Music Videos", "Advertising"],
 tags: ["campaign", "advertising", "film", "atl", "integrated", "fmcg", "food", "cadbury", "chocolate", "olympics", "sponsorship", "taika waititi"],
     type: "vimeo",
@@ -1452,7 +1452,7 @@ tags: ["campaign", "advertising", "film", "atl", "integrated", "fmcg", "food", "
 "/projects/cadbury-wispa-gold/thumb.mp4",
     ],
     vimeoId: "1157937520",
-    note: ".",
+    note: "Reframing support as participation, the campaign gave the British public a literal stake in Team GB’s performance as we collected audio around the nation. “Gold” reimagined a British classic as a high-energy rallying cry, rebuilt from the voices of the nation and remixed into a full-scale training spectacle for the temporary relaunch of Wispa Gold.",
   },
 
   {
